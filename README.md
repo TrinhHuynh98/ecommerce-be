@@ -17,7 +17,7 @@ npm install swagger-ui-express swagger-jsdoc
 Swaggers
 
     ```md
-    ![alt text](assets/images/swagger.png)
+    ![swagger](assets/images/swagger.png)
     ```
 
 ## Features
