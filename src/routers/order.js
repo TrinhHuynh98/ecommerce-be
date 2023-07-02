@@ -178,7 +178,6 @@ router.post("/", async (req, res) => {
         "product",
         "price"
       );
-
       const totalPrice = orderItem.product.price * orderItem.quantity;
       return totalPrice;
     })

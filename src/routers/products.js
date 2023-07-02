@@ -3,6 +3,7 @@ const { Product } = require("../models/products");
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
+const { handleUpload, getFileName } = require("../helpers/upload");
 
 /**
  * @swagger
@@ -156,11 +157,14 @@ router.post(`/`, async (req, res) => {
   const category = await Category.findById(req.body.category);
   if (!category) return res.status(400).send("Invalid Category");
 
+  // const imagePath = await getFileName(req.body.image, res);
+  // const image = await handleUpload(imagePath);
+
   let product = new Product({
     name: req.body.name,
     description: req.body.description,
     richDescription: req.body.richDescription,
-    image: req.body.image, // "http://localhost:3000/public/upload/image-2323232"
+    image: req.body.image,
     brand: req.body.brand,
     price: req.body.price,
     category: req.body.category,
@@ -222,7 +226,7 @@ router.put(`/:id`, async (req, res) => {
       name: req.body.name,
       description: req.body.description,
       richDescription: req.body.richDescription,
-      image: req.body.image, // "http://localhost:3000/public/upload/image-2323232"
+      image: req.body.image,
       brand: req.body.brand,
       price: req.body.price,
       category: req.body.category,
