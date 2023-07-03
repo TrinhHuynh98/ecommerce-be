@@ -8,6 +8,8 @@ const errorHanlder = require("./src/helpers/error-handler");
 const swaggerUI = require("swagger-ui-express");
 const swaggerJsDoc = require("swagger-jsdoc");
 const cookieParser = require("cookie-parser");
+const CSS_URL =
+  "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css";
 
 const app = express();
 
@@ -45,7 +47,11 @@ const options = {
 
 const specs = swaggerJsDoc(options);
 
-app.use("/api/v1/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
+app.use(
+  "/api/v1/api-docs",
+  swaggerUI.serve,
+  swaggerUI.setup(specs, { customCssUrl: CSS_URL })
+);
 
 app.use(cors());
 app.options("*", cors());
