@@ -11,9 +11,7 @@ const router = express.Router();
  *       required:
  *         - name
  *       properties:
- *         id:
- *           type: string
- *           description: The auto-generated id of the book
+ *
  *         name:
  *           type: string
  *           description: The auto-generated id of the book
@@ -35,7 +33,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /category:
+ * /api/v1/category:
  *   get:
  *     summary: Returns the list of all the Category
  *     tags: [Category]
@@ -61,7 +59,7 @@ router.get("/", async (req, res) => {
 
 /**
  * @swagger
- * /category/{id}:
+ * /api/v1/category/{id}:
  *   get:
  *     summary: Get the Category by id
  *     tags: [Category]
@@ -95,7 +93,7 @@ router.get("/:id", async (req, res) => {
 
 /**
  * @swagger
- * /category:
+ * /api/v1/category:
  *   post:
  *     summary: Create new category
  *     tags: [Category]
@@ -132,7 +130,7 @@ router.post("/", async (req, res) => {
 
 /**
  * @swagger
- * /category:
+ * /api/v1/category:
  *   put:
  *     summary: Update new category
  *     tags: [Category]
@@ -182,7 +180,7 @@ router.put("/:id", async (req, res) => {
 
 /**
  * @swagger
- * /category/{id}:
+ * /api/v1/category/{id}:
  *   delete:
  *     summary: Remove the category by id
  *     tags: [Category]
