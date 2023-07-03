@@ -4,6 +4,17 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+const {
+  login,
+  register,
+  listUser,
+  userDetail,
+  updateUser,
+  deleteUser,
+  userCount,
+  getNewRefreshToken,
+} = require("../controller/user");
+
 /**
  * @swagger
  * components:
@@ -60,7 +71,7 @@ const jwt = require("jsonwebtoken");
 
 /**
  * @swagger
- * /user:
+ * /api/v1/user:
  *   get:
  *     summary: Returns the list of all the user
  *     tags: [User]
@@ -75,18 +86,11 @@ const jwt = require("jsonwebtoken");
  *
  */
 
-router.get("/", async (req, res) => {
-  const userList = await User.find().select("-passwordHash");
-
-  if (!userList) {
-    res.status(500).json({ success: false });
-  }
-  res.send(userList);
-});
+router.get("/", listUser);
 
 /**
  * @swagger
- * /user/{id}:
+ * /api/v1/user/{id}:
  *   get:
  *     summary: Get the user by id
  *     tags: [User]
@@ -107,18 +111,11 @@ router.get("/", async (req, res) => {
  *         description: Cannot get user detail
  */
 
-router.get("/:id", async (req, res) => {
-  const userList = await User.findById(req.params.id).select("-passwordHash");
-
-  if (!userList) {
-    res.status(500).json({ success: false });
-  }
-  res.send(userList);
-});
+router.get("/:id", userDetail);
 
 /**
  * @swagger
- * /user/register:
+ * /api/v1/user/register:
  *   post:
  *     summary: Register new account
  *     tags: [User]
@@ -139,32 +136,11 @@ router.get("/:id", async (req, res) => {
  *         description: Some server error
  */
 
-router.post("/register", async (req, res) => {
-  let user = new User({
-    name: req.body.name,
-    email: req.body.email,
-    passwordHash: bcrypt.hashSync(req.body.password, 10),
-    phone: req.body.phone,
-    isAdmin: req.body.isAdmin,
-    street: req.body.street,
-    apartment: req.body.apartment,
-    zip: req.body.zip,
-    city: req.body.city,
-    country: req.body.country,
-  });
-
-  user = await user.save();
-
-  if (!user) {
-    return res.status(400).send("User cannot be registed");
-  }
-
-  res.send(user);
-});
+router.post("/register", register);
 
 /**
  *  @swagger
- * /user/{id}:
+ * /api/v1/user/{id}:
  *  put:
  *    summary: Update the user by the id
  *    tags: [User]
@@ -194,44 +170,11 @@ router.post("/register", async (req, res) => {
  *        description: Some error happened
  */
 
-router.put("/:id", async (req, res) => {
-  const existUser = await User.findById(req.params.id);
-  let newPassword;
-  if (req.body.password) {
-    newPassword = bcrypt.hashSync(req.body.password, 10);
-  } else {
-    newPassword = existUser.passwordHash;
-  }
-
-  const user = await User.findByIdAndUpdate(
-    req.params.id,
-    {
-      name: req.body.name,
-      email: req.body.email,
-      passwordHash: newPassword,
-      phone: req.body.phone,
-      isAdmin: req.body.isAdmin,
-      street: req.body.street,
-      apartment: req.body.apartment,
-      zip: req.body.zip,
-      city: req.body.city,
-      country: req.body.country,
-    },
-    {
-      new: true,
-    }
-  );
-
-  if (!user) {
-    return res.status(400).send("User cannot be updated");
-  }
-
-  res.send(user);
-});
+router.put("/:id", updateUser);
 
 /**
  * @swagger
- * /user/login:
+ * /api/v1/user/login:
  *   post:
  *     summary: Login
  *     tags: [User]
@@ -252,46 +195,11 @@ router.put("/:id", async (req, res) => {
  *         description: Some server error
  */
 
-router.post("/login", async (req, res) => {
-  const user = await User.findOne({ email: req.body.email });
-  const serect = process.env.ACCESS_TOKEN;
-
-  if (!user) {
-    return res.status(404).send("The user not found");
-  }
-
-  if (user && bcrypt.compareSync(req.body.password, user.passwordHash)) {
-    const accesstoken = jwt.sign(
-      {
-        userId: user.id,
-        isAdmin: user.isAdmin,
-      },
-      serect,
-      { expiresIn: "1d" }
-    );
-
-    const refreshtoken = jwt.sign(
-      {
-        userId: user.id,
-        isAdmin: user.isAdmin,
-      },
-      process.env.REFRESH_TOKEN,
-      { expiresIn: "30d" }
-    );
-
-    return res.status(200).send({
-      user: user.email,
-      access: accesstoken,
-      refreshtoken: refreshtoken,
-    });
-  } else {
-    return res.status(400).send("Email or Password is wrong ");
-  }
-});
+router.post("/login", login);
 
 /**
  * @swagger
- * /user/{id}:
+ * /api/v1/user/{id}:
  *   delete:
  *     summary: Remove the user by id
  *     tags: [User]
@@ -310,27 +218,11 @@ router.post("/login", async (req, res) => {
  *         description: The product was not found
  */
 
-router.delete("/:id", (req, res) => {
-  User.findByIdAndRemove(req.params.id)
-    .then((user) => {
-      if (user) {
-        return res
-          .status(200)
-          .json({ success: true, message: "The user is deleted!" });
-      } else {
-        return res
-          .status(404)
-          .json({ success: false, message: "User not found!" });
-      }
-    })
-    .catch((err) => {
-      return res.status(500).json({ success: false, error: err });
-    });
-});
+router.delete("/:id", deleteUser);
 
 /**
  * @swagger
- * /user/get/count:
+ * /api/v1/user/get/count:
  *   get:
  *     summary: Get total user
  *     tags: [User]
@@ -346,16 +238,7 @@ router.delete("/:id", (req, res) => {
  *                 $ref: '#/components/schemas/User'
  */
 
-router.get("/get/count", async (req, res) => {
-  const userCount = await User.countDocuments();
-
-  if (!userCount) {
-    res.status(500).json({ success: false });
-  }
-  res.send({
-    userCount: userCount,
-  });
-});
+router.get("/get/count", userCount);
 
 /**
  * @swagger
@@ -380,30 +263,6 @@ router.get("/get/count", async (req, res) => {
  *         description: Some server error
  */
 
-router.post("/get-new-token", async (req, res) => {
-  const refreshtoken = req.body.refreshtoken;
-
-  if (refreshtoken) {
-    jwt.verify(refreshtoken, process.env.REFRESH_TOKEN, (error, decode) => {
-      if (error) {
-        return res
-          .status(401)
-          .send("Refresh token was expired, please login again!");
-      } else {
-        const newRefreshtoken = jwt.sign(
-          {
-            userId: req.id,
-            isAdmin: req.isAdmin,
-          },
-          process.env.REFRESH_TOKEN,
-          { expiresIn: "1d" }
-        );
-        return res.send({ accesstoken: newRefreshtoken });
-      }
-    });
-  } else {
-    res.status(401).send("Unauthrized");
-  }
-});
+router.post("/get-new-token", getNewRefreshToken);
 
 module.exports = router;

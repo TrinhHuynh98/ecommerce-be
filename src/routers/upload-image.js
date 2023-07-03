@@ -1,10 +1,5 @@
+const { singleUpload, multipleUpload } = require("../controller/upload");
 const express = require("express");
-const {
-  handleUpload,
-  getFileName,
-  getFileNames,
-} = require("../helpers/upload");
-
 const router = express.Router();
 
 /**
@@ -29,7 +24,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /upload:
+ * /api/v1/upload:
  *   post:
  *     summary: upload single file
  *     tags: [Upload]
@@ -51,19 +46,11 @@ const router = express.Router();
  *
  */
 
-router.post("/", async (req, res) => {
-  try {
-    const path = await getFileName(req, res);
-    const cldRes = await handleUpload(path);
-    res.send({ url: cldRes });
-  } catch (error) {
-    res.status(500).send("Cannot upload image");
-  }
-});
+router.post("/", singleUpload);
 
 /**
  * @swagger
- * upload/multiple-image:
+ * /api/v1/upload/multiple-image:
  *   post:
  *     summary: upload multiple file
  *     tags: [Upload]
@@ -85,19 +72,6 @@ router.post("/", async (req, res) => {
  *
  */
 
-router.post("/multiple-image", async (req, res) => {
-  try {
-    const urls = [];
-    const files = await getFileNames(req, res);
-    for (const file of files) {
-      const newPath = await handleUpload(file);
-      urls.push(newPath);
-    }
-    res.send({ images: urls });
-  } catch (error) {
-    console.log("error multiple upload", error);
-    res.status(500).send("Cannot upload images");
-  }
-});
+router.post("/multiple-image", multipleUpload);
 
 module.exports = router;
