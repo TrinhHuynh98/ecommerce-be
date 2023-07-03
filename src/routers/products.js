@@ -17,9 +17,6 @@ const { handleUpload, getFileName } = require("../helpers/upload");
  *         - category
  *         - countInStock
  *       properties:
- *         id:
- *           type: string
- *           description: The auto-generated id of the book
  *         name:
  *           type: string
  *           description: The product name
@@ -67,7 +64,7 @@ const { handleUpload, getFileName } = require("../helpers/upload");
 
 /**
  * @swagger
- * /books:
+ * /api/v1/products:
  *   get:
  *     summary: Returns the list of all the products
  *     tags: [Products]
@@ -97,7 +94,7 @@ router.get("/", async (req, res) => {
 
 /**
  * @swagger
- * /product/{id}:
+ * /api/v1/products/{id}:
  *   get:
  *     summary: Get the product by id
  *     tags: [Products]
@@ -132,7 +129,7 @@ router.get("/:id", async (req, res) => {
 
 /**
  * @swagger
- * /product:
+ * /api/v1/products:
  *   post:
  *     summary: Create a new product
  *     tags: [Products]
@@ -183,7 +180,7 @@ router.post(`/`, async (req, res) => {
 
 /**
  *  @swagger
- * /product/{id}:
+ * /api/v1/products/{id}:
  *  put:
  *    summary: Update the product by the id
  *    tags: [Products]
@@ -247,7 +244,7 @@ router.put(`/:id`, async (req, res) => {
 
 /**
  * @swagger
- * /product/{id}:
+ * /api/v1/products/{id}:
  *   delete:
  *     summary: Remove the product by id
  *     tags: [Products]
@@ -286,7 +283,7 @@ router.delete("/:id", (req, res) => {
 
 /**
  * @swagger
- * /product/get/count:
+ * /api/v1/products/get/count:
  *   get:
  *     summary: Get total product
  *     tags: [Products]
@@ -315,7 +312,7 @@ router.get("/get/count", async (req, res) => {
 
 /**
  * @swagger
- * /product/get/featured/{count}:
+ * /api/v1/products/get/featured/{count}:
  *   get:
  *     summary: Get total product
  *     tags: [Products]

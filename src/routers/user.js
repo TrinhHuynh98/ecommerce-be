@@ -254,14 +254,14 @@ router.put("/:id", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   const user = await User.findOne({ email: req.body.email });
-  const serect = process.env.SERECT;
+  const serect = process.env.ACCESS_TOKEN;
 
   if (!user) {
     return res.status(404).send("The user not found");
   }
 
   if (user && bcrypt.compareSync(req.body.password, user.passwordHash)) {
-    const token = jwt.sign(
+    const accesstoken = jwt.sign(
       {
         userId: user.id,
         isAdmin: user.isAdmin,
@@ -269,7 +269,21 @@ router.post("/login", async (req, res) => {
       serect,
       { expiresIn: "1d" }
     );
-    return res.status(200).send({ user: user.email, token: token });
+
+    const refreshtoken = jwt.sign(
+      {
+        userId: user.id,
+        isAdmin: user.isAdmin,
+      },
+      process.env.REFRESH_TOKEN,
+      { expiresIn: "30d" }
+    );
+
+    return res.status(200).send({
+      user: user.email,
+      access: accesstoken,
+      refreshtoken: refreshtoken,
+    });
   } else {
     return res.status(400).send("Email or Password is wrong ");
   }
@@ -341,6 +355,55 @@ router.get("/get/count", async (req, res) => {
   res.send({
     userCount: userCount,
   });
+});
+
+/**
+ * @swagger
+ * /api/v1/user/get-new-token:
+ *   post:
+ *     summary: ge New refresh token
+ *     tags: [User]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/User'
+ *     responses:
+ *       200:
+ *         description: The user was successfully register
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       500:
+ *         description: Some server error
+ */
+
+router.post("/get-new-token", async (req, res) => {
+  const refreshtoken = req.body.refreshtoken;
+
+  if (refreshtoken) {
+    jwt.verify(refreshtoken, process.env.REFRESH_TOKEN, (error, decode) => {
+      if (error) {
+        return res
+          .status(401)
+          .send("Refresh token was expired, please login again!");
+      } else {
+        const newRefreshtoken = jwt.sign(
+          {
+            userId: req.id,
+            isAdmin: req.isAdmin,
+          },
+          process.env.REFRESH_TOKEN,
+          { expiresIn: "1d" }
+        );
+        return res.send({ accesstoken: newRefreshtoken });
+      }
+    });
+  } else {
+    res.status(401).send("Unauthrized");
+  }
 });
 
 module.exports = router;
