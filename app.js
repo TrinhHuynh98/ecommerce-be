@@ -7,7 +7,7 @@ const authJwt = require("./src/helpers/jwt");
 const errorHanlder = require("./src/helpers/error-handler");
 const swaggerUI = require("swagger-ui-express");
 const swaggerJsDoc = require("swagger-jsdoc");
-const multer = require("multer");
+const cookieParser = require("cookie-parser");
 
 const app = express();
 
@@ -58,6 +58,7 @@ app.use(bodyParser.json());
 app.use(morgan("tiny"));
 app.use(authJwt());
 app.use(errorHanlder);
+app.use(cookieParser());
 
 // Routers
 const productRouters = require("./src/routers/products");

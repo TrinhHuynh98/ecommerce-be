@@ -1,4 +1,10 @@
-const { Category } = require("../models/category");
+const {
+  categoryDetail,
+  categoryList,
+  createCatgory,
+  updateCategory,
+  deleteCategory,
+} = require("../controller/category");
 const express = require("express");
 const router = express.Router();
 
@@ -48,14 +54,7 @@ const router = express.Router();
  *
  */
 
-router.get("/", async (req, res) => {
-  const categoryList = await Category.find();
-
-  if (!categoryList) {
-    res.status(500).json({ success: false, message: "Cannot get category" });
-  }
-  res.status(200).send(categoryList);
-});
+router.get("/", categoryList);
 
 /**
  * @swagger
@@ -80,16 +79,7 @@ router.get("/", async (req, res) => {
  *         description: Cannot get Category detail
  */
 
-router.get("/:id", async (req, res) => {
-  const categoryItem = await Category.findById(req.params.id);
-
-  if (!categoryItem) {
-    res
-      .status(500)
-      .json({ success: false, message: "Category is not existed" });
-  }
-  res.status(200).send(categoryItem);
-});
+router.get("/:id", categoryDetail);
 
 /**
  * @swagger
@@ -114,19 +104,7 @@ router.get("/:id", async (req, res) => {
  *         description: Server error
  */
 
-router.post("/", async (req, res) => {
-  let categoryItem = new Category({
-    name: req.body.name,
-    icon: req.body.icon,
-    color: req.body.color,
-  });
-
-  categoryItem = await categoryItem.save();
-
-  if (!categoryItem) return res.status(500).send("Category cannnot be created");
-
-  res.send(categoryItem);
-});
+router.post("/", createCatgory);
 
 /**
  * @swagger
@@ -158,25 +136,7 @@ router.post("/", async (req, res) => {
  *         description: Server error
  */
 
-router.put("/:id", async (req, res) => {
-  let categoryItem = await Category.findByIdAndUpdate(
-    req.params.id,
-    {
-      name: req.body.name,
-      icon: req.body.icon,
-      color: req.body.color,
-    },
-    {
-      new: true,
-    }
-  );
-
-  categoryItem = await categoryItem.save();
-
-  if (!categoryItem) return res.status(500).send("Category is not exist");
-
-  res.status(200).send(categoryItem);
-});
+router.put("/:id", updateCategory);
 
 /**
  * @swagger
@@ -199,22 +159,6 @@ router.put("/:id", async (req, res) => {
  *         description: The category was not found
  */
 
-router.delete("/:id", async (req, res) => {
-  await Category.findByIdAndDelete(req.params.id)
-    .then((response) => {
-      if (response) {
-        res
-          .status(200)
-          .json({ success: true, message: "Category deleted successfully" });
-      } else {
-        res
-          .status(404)
-          .json({ success: false, message: "Category is not existed" });
-      }
-    })
-    .catch((error) => {
-      res.status(500).json({ success: false, message: error });
-    });
-});
+router.delete("/:id", deleteCategory);
 
 module.exports = router;
