@@ -2,9 +2,9 @@
   "name": "be-ecomm",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "nodemon app.js",
     "test": "jest"
   },
   "author": "",
